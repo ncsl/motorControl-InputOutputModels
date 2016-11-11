@@ -1,0 +1,8 @@
+array_list = {'arrayC (PMv)',...        % chan 1-16
+              'arrayL (S1)',...         % chan 17-32
+              'arrayD (PMd)',...        % chan 33-48
+              'arrayF (M1)',...         % chan 49-64
+              'arrayG (M1)',...         % chan 65-80
+              'arrayH (M1)',...         % chan 81-96
+              'arrayI (M1)',...         % chan 97-112
+              'arrayJ (M1-medial)'};    % chan 113-128
