@@ -1,0 +1,15 @@
+data = load('organizedData.mat');
+data = data.organizedData;
+
+mallet = data.mallet;
+push = data.push;
+sphere = data.sphere;
+pull = data.pull;
+
+experiment = mallet;
+trials = fieldnames(experiment);
+% loop through all trials
+for i=1:length(experiment)
+    trial = experiment.trial1;
+    
+end
