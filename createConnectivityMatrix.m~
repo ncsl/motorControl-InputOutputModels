@@ -1,15 +1,34 @@
-data = load('organizedData.mat');
-data = data.organizedData;
+% data = load('organizedData.mat');
+% data = data.organizedData;
+% 
+% mallet = data.mallet;
+% push = data.push;
+% sphere = data.sphere;
+% pull = data.pull;
+% 
+% experiment = mallet;
+% trials = fieldnames(experiment);
+% % loop through all trials
+% for i=1:length(trials)
+%     trialname = trials{i};
+%     trial = experiment.(trialname);
+%     
+%     S1 = trial.S1;
+%     Pmv = trial.PMv;
+%     Pmd = trial.PMd;
+%     M1 = trial.M1;
+%     
+% end
 
-mallet = data.mallet;
-push = data.push;
-sphere = data.sphere;
-pull = data.pull;
-
-experiment = mallet;
-trials = fieldnames(experiment);
-% loop through all trials
-for i=1:length(experiment)
-    trial = experiment.trial1;
+load('data_X0918.mat');
+neuron_list = fieldnames(neurons);
+for i=1:length(neuron_list)
+    neuron = neurons.(neuron_list{i});
+    
+    push = neuron.push;
+    mallet = neuron.mallet;
+    sphere = neuron.sphere;
+    pull = neuron.pull;
+    
     
 end

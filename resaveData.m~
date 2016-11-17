@@ -22,7 +22,16 @@ end
 
 load('data_X0918.mat');
 neuron_list = fieldnames(neurons);
-
+for i=1:length(neuron_list)
+    neuron = neurons.(neuron_list{i});
+    
+    push = neuron.push;
+    mallet = neuron.mallet;
+    sphere = neuron.sphere;
+    pull = neuron.pull;
+    
+    
+end
 
 % loop through all neurons and save the corresponding extracted data
 for i=1:length(neuron_names)
