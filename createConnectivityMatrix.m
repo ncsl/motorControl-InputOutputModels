@@ -44,7 +44,15 @@ for iA=1:length(areas) % looping through each brain recording region
                  
                  neuro = sig(iChan, n); % get neuron in sig<channel><letter> form
                  neuronID = sprintf('neurons.%s',neuro);
+                 if isfield(neurons,neuro)
+                    countNeuron(num) = countNeuron(num) + 1;
+                    
+                    for k = 1:length(condition) 
+                        trials = fieldnames(eval(sprintf('%s.%s',neuronID,condition{k})));
+                        ntrials = length(trials); 
 
+                    end
+                 end
              end
          end
     end
