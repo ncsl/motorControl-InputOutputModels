@@ -26,7 +26,7 @@ regions = struct('PMv',[1,16],'S1',[17,32],'PMd',[33,48],'M1',[49,112],'M1medial
 regionNeurons = struct('PMv', [], 'S1', [], 'PMd', [], 'M1', []);%, 'M1medial', []);
 
 countNeuron = zeros([length(areas) 1]);
-
+trialsToInclude = cell(length(matFiles), 120);
 %%- 1. Connect all neurons
 for iNeuron=1:length(matFiles)
     currentNeuron = fullfile(dataDir, matFiles{iNeuron});
@@ -42,21 +42,24 @@ for iNeuron=1:length(matFiles)
         for iTrial=1:length(trials)
             % get the trial data struct
             trialData = condition.(trials{iTrial});
-            instruction_index = trialData.eventIndices.instruction_time;
-            move_index = trialData.eventIndices.move_time;
             
-            flag = 1;
-            if (move_index - instruction_index)/1000 > 0.5 % move time was too slow
-                flag = 0;
-            end
-            
-            if flag % only append spiking patterns for trials to include
-                % get the entire spiking parttern for entire trial
-                trialDataSpikeHist = condition.(trials{iTrial}).spikeHist(move_index-500:move_index+500); 
-                if isempty(spiking_vector)
-                    spiking_vector = trialDataSpikeHist;
-                else
-                    spiking_vector = cat(1, spiking_vector, trialDataSpikeHist);
+            if isfield(trialData.eventIndices, 'move_time')
+                instruction_index = trialData.eventIndices.instruction_time;
+                move_index = trialData.eventIndices.move_time;
+
+                flag = 1;
+                if (move_index - instruction_index)/1000 > 0.5 % move time was too slow
+                    flag = 0;
+                end
+
+                if flag % only append spiking patterns for trials to include
+                    % get the entire spiking parttern for entire trial
+                    trialDataSpikeHist = condition.(trials{iTrial}).spikeHist(move_index-500:move_index+500); 
+                    if isempty(spiking_vector)
+                        spiking_vector = trialDataSpikeHist;
+                    else
+                        spiking_vector = cat(1, spiking_vector, trialDataSpikeHist);
+                    end
                 end
             end
         end
@@ -65,22 +68,6 @@ for iNeuron=1:length(matFiles)
     end    
 end
 
-<<<<<<< HEAD
-
-
-
-%%- create graph based on pearson R correlation
-graph = struct('mallet',[],'pull',[],'push',[],'sphere',[]);
-for iCond=1:length(conditions)
-    data = [];
-    
-    conditionData = organizedData.(conditions{iCond});
-    neurons = fieldnames(conditionData);
-    for iNeuron=1:length(neurons)
-        neuronData = conditionData.(neurons{iNeuron});
-        if isempty(data)
-            data = neuronData;
-=======
 %%- create graph irrespective of condition
 data = [];
 neurons = fieldnames(organizedData.mallet);
@@ -89,7 +76,6 @@ for iNeuron=1:length(neurons)
     for iCond=1:length(conditions)
         if isempty(neuronData)
             neuronData = organizedData.(conditions{iCond}).(neurons{iNeuron});
->>>>>>> dfe848caaddddbcdf36eb73294f48c90a84072d9
         else
             neuronData = cat(1, neuronData, organizedData.(conditions{iCond}).(neurons{iNeuron}));
         end
@@ -100,7 +86,6 @@ for iNeuron=1:length(neurons)
         data = cat(2, data, neuronData);
     end
 end
-graph = struct('mallet',[],'pull',[],'push',[],'sphere',[]);
 graph = corr(data);
 save(fullfile(graphDir, 'pearsonRGraph_allconditions'), 'graph');
 

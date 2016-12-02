@@ -39,12 +39,12 @@ for iNeuron=1:num_neurons
             trialnum = current_trial.trialnum;
             
             %%- STORE ADDITIONAL MARKERS HERE IF YOU WANT TO LOG THEM
-            instruction_index = find(current_trial.eventdata == 245); %,1,'last'
+            instruction_index = find(current_trial.eventdata == 245, 1, 'last'); %,1,'last'
             move_index = find(current_trial.eventdata == 64);    % 
-            endhold_index = find(current_trial.eventdata == 70); %248,1,'last'
+            close_index = find(current_trial.eventdata == 248, 1, 'last'); %248,1,'last'
             move_time = current_trial.eventts(move_index);
             instruction_time = current_trial.eventts(instruction_index);
-            endhold_time = current_trial.eventts(endhold_index);
+            close_time = current_trial.eventts(close_index);
             
             % perform binning throughout entire trial
             current_Time = start_trial; % indexing through time
@@ -76,7 +76,7 @@ for iNeuron=1:num_neurons
                     eventIndices.endhold_time = e;
                 end
                 try
-                    if (current_Time-endhold_time <= stepsize && current_Time-endhold_time > 0)
+                    if (current_Time-close_time <= stepsize && current_Time-close_time > 0)
                         eventIndices.endhold_time = index;
                     end
                 catch e
