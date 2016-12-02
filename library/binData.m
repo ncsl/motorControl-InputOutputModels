@@ -32,6 +32,7 @@ for iNeuron=1:num_neurons
         tic;
         for iTrial=1:length(trials)
             current_trial = condition.(trials{iTrial});
+            spike_times = current_trial.alldata;
             
             % log event marker data to align data
             start_trial = current_trial.eventts(1);
@@ -39,66 +40,52 @@ for iNeuron=1:num_neurons
             trialnum = current_trial.trialnum;
             
             %%- STORE ADDITIONAL MARKERS HERE IF YOU WANT TO LOG THEM
-            instruction_index = find(current_trial.eventdata == 245); %,1,'last'
-            move_index = find(current_trial.eventdata == 64);    % 
-            endhold_index = find(current_trial.eventdata == 70); %248,1,'last'
+            % indices of the markers
+            instruction_index = find(current_trial.eventdata == 245,1,'last');
+            move_index = find(current_trial.eventdata == 64);    % find move_indices
+            if length(move_index) > 1
+                move_index = move_index(2);
+            end
+            close_index = find(current_trial.eventdata == 248,1,'last'); %248,1,'last'
+            
+            % actual times of the markers
             move_time = current_trial.eventts(move_index);
             instruction_time = current_trial.eventts(instruction_index);
-            endhold_time = current_trial.eventts(endhold_index);
+            close_time = current_trial.eventts(close_index);
             
-            % perform binning throughout entire trial
-            current_Time = start_trial; % indexing through time
-            index = 1;
-            spike_times = current_trial.alldata;
-            timeIndices = zeros(round((end_trial-start_trial)/(binsize/1000)),2);
-            eventIndices = struct();
-            spikes_binned = zeros(round((end_trial-start_trial)/(binsize/1000)),1);
-%             tic;
-            while current_Time < end_trial
-                % increment in bin size
-                num_spikes = length(find(spike_times > current_Time & spike_times <= (current_Time + binsize/1000)));
-                
-                % store data
-                timeIndices(index,:) = [current_Time, current_Time+stepsize];
-                spikes_binned(index) = num_spikes;
-                try
-                    if (current_Time-instruction_time <= stepsize && current_Time-instruction_time > 0)
-                        eventIndices.instruction_time = index;
-                    end
-                catch e
-                    eventIndices.instruction_time = e;
-                end
-                try
-                    if (current_Time-move_time <= stepsize && current_Time-move_time > 0)
-                        eventIndices.move_time = index;
-                    end
-                catch e
-                    eventIndices.endhold_time = e;
-                end
-                try
-                    if (current_Time-endhold_time <= stepsize && current_Time-endhold_time > 0)
-                        eventIndices.endhold_time = index;
-                    end
-                catch e
-                    eventIndices.endhold_time = e;
-                end
-                % increment time and indices
-                current_Time = current_Time + stepsize;
-                index = index+1;
+            %%- time lock to MOVEMENT ONSET
+            instruction_time = instruction_time - move_time;
+            close_time = close_time - move_time;
+            spike_times = spike_times - move_time;
+            move_time = 0;
+            
+            flag = 0;
+            % run a check on range of close and opening
+            if abs(instruction_time) > 0.5% movement happens too slowly
+                flag = 1; % ignore the trial
             end
-%             toc;
-            
-            % store data in trial struct
-            new_trials.(trials{iTrial}) = struct();
-            new_trials.(trials{iTrial}).spikeHist = spikes_binned;
-            new_trials.(trials{iTrial}).eventIndices = eventIndices;
-            new_trials.(trials{iTrial}).timeIndices = timeIndices;
-            new_trials.(trials{iTrial}).trialnum = trialnum; 
-%             new_trials(iTrial).spikeHist = spikes_binned;
-%             new_trials(iTrial).eventIndices = eventIndices;
-%             new_trials(iTrial).timeIndices = timeIndices;
-%             new_trials(iTrial).trialnum = trialnum; 
-            
+
+            % only bin this trial if 
+            if ~flag
+                % keep spike_times within xmin and xmax
+                spike_times = spike_times(spike_times>xmin & spike_times<xmax);
+                
+                 % initialize: perform binning throughout entire trial
+                spikes_binned = zeros((xmax - xmin)/(binsize/1000), 1);
+                
+                % only keep spike_indices within xmax after move_time
+                spike_indices = ceil(spike_times*(1000/binsize) + abs(xmin)*1000);
+                spikes_binned(spike_indices) = 1;
+                
+                info.close_time = close_time;
+                info.instruction_time = instruction_time;
+                
+                % store data in trial struct
+                new_trials.(trials{iTrial}) = struct();
+                new_trials.(trials{iTrial}).spikeHist = spikes_binned;
+                new_trials.(trials{iTrial}).info = info;
+                new_trials.(trials{iTrial}).trialnum = trialnum; 
+            end
             clear spikes_binned eventIndices timeIndices
         end
         toc;
@@ -107,6 +94,11 @@ for iNeuron=1:num_neurons
         clear new_trials
     end
 %     binned_neurons.(neuron_names{iNeuron}) = binned_neuron;
+%     binned_neuron.mallet
+%     binned_neuron.pull
+%     binned_neuron.push
+%     binned_neuron.sphere
+
     save(neuron_names{iNeuron}, 'binned_neuron');
     clear binned_neuron
 end
