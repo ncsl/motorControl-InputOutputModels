@@ -9,37 +9,54 @@ clusterDir = './Monkey X/clusters/';
 % create the cluster data structure
 binnedDataDir = './Monkey X/binned neurons 1ms/';
 cluster_struct = struct('push', [], 'pull', [], 'mallet', [], 'sphere', []);
-
+conditions = fieldnames(cluster_struct);
 neurons = dir(strcat(binnedDataDir, '*.mat'));
 neurons = {neurons.name};
 
-load(fullfile(graphDir, 'pearsonRGraph.mat'));
-conditions = fieldnames(graph);
+load(fullfile(graphDir, 'pearsonRGraph_allconditions.mat'));
+cluster_struct = struct();
+[C, L, U] = SpectralClustering(graph, 4, 1);
+for iClust=1:size(C,2) % loop through number of clusters
+    clusterName = strcat('cluster', num2str(iClust));
+    currentCluster = C(:, iClust); % get the cluster indices for current cluster
+    neuronIndices = full(currentCluster == 1);
+    neuronsInCluster = neurons(neuronIndices);
 
-figure;
-for iCond=1:length(conditions)
-    currentGraph = graph.(conditions{iCond});
-    [C, L, U] = SpectralClustering(currentGraph, 4, 1);
-    
-    for iClust=1:size(C,2) % loop through number of clusters
-        clusterName = strcat('cluster', num2str(iClust));
-        currentCluster = C(:, iClust); % get the cluster indices for current cluster
-        neuronIndices = full(currentCluster == 1);
-        neuronsInCluster = neurons(neuronIndices);
+    for iNeuron=1:length(neuronsInCluster) % loop through each neuron in cluster
+        neuronName = neuronsInCluster{iNeuron};
+        neuronName = neuronName(1:end-4);
         
-        for iNeuron=1:length(neuronsInCluster) % loop through each neuron in cluster
-            % load in binned neuron and assign it to the cluster structure
-            load(fullfile(binnedDataDir, neuronsInCluster{iNeuron}));
-            cluster_struct.(conditions{iCond}).(clusterName) = binned_neuron.(conditions{iCond})
-        end
+        % load in binned neuron and assign it to the cluster structure
+        load(fullfile(binnedDataDir, neuronsInCluster{iNeuron}));
+        
+        cluster_struct.(clusterName).(neuronName) = binned_neuron;
     end
-    
-    subplot(2,2,iCond);
-    imagesc(full(C))
-    title(['Looking at ', conditions{iCond}]);
-    xlabel('Cluster Index');
-    ylabel('Counts');
-end
+end  
+
+% figure;
+% for iCond=1:length(conditions)
+%     currentGraph = graph.(conditions{iCond});
+%     [C, L, U] = SpectralClustering(currentGraph, 4, 1);
+%     
+%     for iClust=1:size(C,2) % loop through number of clusters
+%         clusterName = strcat('cluster', num2str(iClust));
+%         currentCluster = C(:, iClust); % get the cluster indices for current cluster
+%         neuronIndices = full(currentCluster == 1);
+%         neuronsInCluster = neurons(neuronIndices);
+%         
+%         for iNeuron=1:length(neuronsInCluster) % loop through each neuron in cluster
+%             % load in binned neuron and assign it to the cluster structure
+%             load(fullfile(binnedDataDir, neuronsInCluster{iNeuron}));
+%             cluster_struct.(conditions{iCond}).(clusterName) = binned_neuron.(conditions{iCond})
+%         end
+%     end
+%     
+%     subplot(2,2,iCond);
+%     imagesc(full(C))
+%     title(['Looking at ', conditions{iCond}]);
+%     xlabel('Cluster Index');
+%     ylabel('Counts');
+% end
 
 if ~exist(figDir, 'dir')
     mkdir(figDir);
@@ -49,8 +66,8 @@ if ~exist(clusterDir, 'dir')
 end
 
 % save the cluster data struct
-save(fullfile(clusterDir, 'pearsonRSpectralClustered'), 'cluster_struct');
+save(fullfile(clusterDir, 'pearsonRSpectralClustered_allconditions'), 'cluster_struct', '-v7.3');
 
-print(fullfile(figDir, 'unnormalizedwith4'), '-dpng', '-r0')
+% print(fullfile(figDir, 'unnormalizedwith4_allconditions'), '-dpng', '-r0')
 
 

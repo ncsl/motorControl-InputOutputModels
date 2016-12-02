@@ -9,6 +9,11 @@ addpath('./library/');
 
 % data files we want to examine
 dataDir = 'Monkey X/binned neurons 1ms/';
+graphDir = fullfile('Monkey X/graphs/');
+if ~exist(graphDir, 'dir')
+    mkdir(graphDir);
+end
+
 matFiles = dir(strcat(dataDir, '*.mat'));
 matFiles = {matFiles.name};
 
@@ -60,6 +65,7 @@ for iNeuron=1:length(matFiles)
     end    
 end
 
+<<<<<<< HEAD
 
 
 
@@ -74,18 +80,50 @@ for iCond=1:length(conditions)
         neuronData = conditionData.(neurons{iNeuron});
         if isempty(data)
             data = neuronData;
+=======
+%%- create graph irrespective of condition
+data = [];
+neurons = fieldnames(organizedData.mallet);
+for iNeuron=1:length(neurons)
+    neuronData = [];
+    for iCond=1:length(conditions)
+        if isempty(neuronData)
+            neuronData = organizedData.(conditions{iCond}).(neurons{iNeuron});
+>>>>>>> dfe848caaddddbcdf36eb73294f48c90a84072d9
         else
-            data = cat(2, data, neuronData);
+            neuronData = cat(1, neuronData, organizedData.(conditions{iCond}).(neurons{iNeuron}));
         end
     end
-    
-    graph.(conditions{iCond}) = corr(data);
+    if isempty(data)
+        data = neuronData;
+    else
+        data = cat(2, data, neuronData);
+    end
 end
-graphDir = fullfile('Monkey X/graphs/');
-if ~exist(graphDir, 'dir')
-    mkdir(graphDir);
-end
-save(fullfile(graphDir, 'pearsonRGraph'), 'graph');
+graph = struct('mallet',[],'pull',[],'push',[],'sphere',[]);
+graph = corr(data);
+save(fullfile(graphDir, 'pearsonRGraph_allconditions'), 'graph');
+
+%%- create graph based on pearson R correlation
+% graph = struct('mallet',[],'pull',[],'push',[],'sphere',[]);
+% for iCond=1:length(conditions)
+%     data = [];
+%     
+%     conditionData = organizedData.(conditions{iCond});
+%     neurons = fieldnames(conditionData);
+%     for iNeuron=1:length(neurons)
+%         neuronData = conditionData.(neurons{iNeuron});
+%         if isempty(data)
+%             data = neuronData;
+%         else
+%             data = cat(2, data, neuronData);
+%         end
+%     end
+%     
+%     graph.(conditions{iCond}) = corr(data);
+% end
+% 
+% save(fullfile(graphDir, 'pearsonRGraph'), 'graph');
 
 
 %%- 2. Connect by areas
