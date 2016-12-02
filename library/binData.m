@@ -40,7 +40,6 @@ for iNeuron=1:num_neurons
             trialnum = current_trial.trialnum;
             
             %%- STORE ADDITIONAL MARKERS HERE IF YOU WANT TO LOG THEM
-<<<<<<< HEAD
             % indices of the markers
             instruction_index = find(current_trial.eventdata == 245,1,'last');
             move_index = find(current_trial.eventdata == 64);    % find move_indices
@@ -50,11 +49,6 @@ for iNeuron=1:num_neurons
             close_index = find(current_trial.eventdata == 248,1,'last'); %248,1,'last'
             
             % actual times of the markers
-=======
-            instruction_index = find(current_trial.eventdata == 245, 1, 'last'); %,1,'last'
-            move_index = find(current_trial.eventdata == 64);    % 
-            close_index = find(current_trial.eventdata == 248, 1, 'last'); %248,1,'last'
->>>>>>> 6920b92a9594267d2c614b4ae2c1cded666a2920
             move_time = current_trial.eventts(move_index);
             instruction_time = current_trial.eventts(instruction_index);
             close_time = current_trial.eventts(close_index);
@@ -75,8 +69,7 @@ for iNeuron=1:num_neurons
             if ~flag
                 % keep spike_times within xmin and xmax
                 spike_times = spike_times(spike_times>xmin & spike_times<xmax);
-                
-<<<<<<< HEAD
+
                  % initialize: perform binning throughout entire trial
                 spikes_binned = zeros((xmax - xmin)/(binsize/1000), 1);
                 
@@ -92,35 +85,6 @@ for iNeuron=1:num_neurons
                 new_trials.(trials{iTrial}).spikeHist = spikes_binned;
                 new_trials.(trials{iTrial}).info = info;
                 new_trials.(trials{iTrial}).trialnum = trialnum; 
-=======
-                % store data
-                timeIndices(index,:) = [current_Time, current_Time+stepsize];
-                spikes_binned(index) = num_spikes;
-                try
-                    if (current_Time-instruction_time <= stepsize && current_Time-instruction_time > 0)
-                        eventIndices.instruction_time = index;
-                    end
-                catch e
-                    eventIndices.instruction_time = e;
-                end
-                try
-                    if (current_Time-move_time <= stepsize && current_Time-move_time > 0)
-                        eventIndices.move_time = index;
-                    end
-                catch e
-                    eventIndices.endhold_time = e;
-                end
-                try
-                    if (current_Time-close_time <= stepsize && current_Time-close_time > 0)
-                        eventIndices.endhold_time = index;
-                    end
-                catch e
-                    eventIndices.endhold_time = e;
-                end
-                % increment time and indices
-                current_Time = current_Time + stepsize;
-                index = index+1;
->>>>>>> 6920b92a9594267d2c614b4ae2c1cded666a2920
             end
             clear spikes_binned eventIndices timeIndices
         end
