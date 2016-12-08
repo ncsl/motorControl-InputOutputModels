@@ -1,0 +1,11 @@
+% function runppm(index, paramList)
+
+params = load('example_params.mat');
+load('trainData.mat');
+
+params = params.params;
+
+
+[X,Y,beta,stats] = pointProcessModel(clusterData, outname, varargin)
+
+% end
