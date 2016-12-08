@@ -42,25 +42,13 @@ for iNeuron=1:length(matFiles)
         for iTrial=1:length(trials)
             % get the trial data struct
             trialData = condition.(trials{iTrial});
-            
-            if isfield(trialData.eventIndices, 'move_time')
-                instruction_index = trialData.eventIndices.instruction_time;
-                move_index = trialData.eventIndices.move_time;
+            spikeHist = trialData.spikeHist;
 
-                flag = 1;
-                if (move_index - instruction_index)/1000 > 0.5 % move time was too slow
-                    flag = 0;
-                end
-
-                if flag % only append spiking patterns for trials to include
-                    % get the entire spiking parttern for entire trial
-                    trialDataSpikeHist = condition.(trials{iTrial}).spikeHist(move_index-500:move_index+500); 
-                    if isempty(spiking_vector)
-                        spiking_vector = trialDataSpikeHist;
-                    else
-                        spiking_vector = cat(1, spiking_vector, trialDataSpikeHist);
-                    end
-                end
+            % get the entire spiking parttern for entire trial
+            if isempty(spiking_vector)
+                spiking_vector = spikeHist;
+            else
+                spiking_vector = cat(1, spiking_vector, spikeHist);
             end
         end
 

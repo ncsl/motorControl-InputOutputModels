@@ -14,9 +14,10 @@ neurons = dir(strcat(binnedDataDir, '*.mat'));
 neurons = {neurons.name};
 
 load(fullfile(graphDir, 'pearsonRGraph_allconditions.mat'));
-cluster_struct = struct();
+% cluster_struct = struct();
 [C, L, U] = SpectralClustering(graph, 4, 1);
 
+<<<<<<< HEAD
 tempclusters = C;
 clusters = zeros(length(tempclusters),1);
 for i=1:length(tempclusters)
@@ -25,6 +26,29 @@ for i=1:length(tempclusters)
 end
 
 save('cindices.mat', 'clusters')
+=======
+% initialize struct
+for iCond=1:length(conditions)
+    cluster_struct.(conditions{iCond}) = struct();
+    load(fullfile(binnedDataDir, neurons{1}));
+    trials = fieldnames(binned_neuron.(conditions{iCond}));
+    for iNeuron=1:length(neurons)
+        for iTrial=1:length(trials)
+            if ~isfield( cluster_struct.(conditions{iCond}), trials{iTrial})
+                cluster_struct.(conditions{iCond}).(trials{iTrial}) = struct();
+            end
+            
+            for iClust=1:size(C,2)
+                clustername = strcat('cluster', num2str(iClust));
+                if ~isfield( cluster_struct.(conditions{iCond}).(trials{iTrial}), clustername)
+                    cluster_struct.(conditions{iCond}).(trials{iTrial}).(clustername) = [];
+                end
+            end
+        end
+    end
+end
+
+>>>>>>> c7603d1d823c7e43554b81013339cdce121240fb
 
 for iClust=1:size(C,2) % loop through number of clusters
     clusterName = strcat('cluster', num2str(iClust));
@@ -43,26 +67,25 @@ for iClust=1:size(C,2) % loop through number of clusters
             %%- for a condition, load all neuron's activity across all trials
             condition = binned_neuron.(conditions{iCond}); % get the data for this current condition
             trials = fieldnames(condition);
-        
+            
             for iTrial=1:length(trials)
                 % get the trial data struct
                 trialData = condition.(trials{iTrial});
-
-                if isfield(trialData.eventIndices, 'move_time')
-                    instruction_index = trialData.eventIndices.instruction_time;
-                    move_index = trialData.eventIndices.move_time;
-
-                    flag = 1;
-                    if (move_index - instruction_index)/1000 > 0.5 % move time was too slow
-                        flag = 0;
-                    end
-
-                    if flag % only append spiking patterns for trials to include
-                        cluster_struct.(clusterName).(neuronName).(conditions{iCond}).(trials{iTrial}) = ...
-                            binned_neuron.(conditions{iCond}).(trials{iTrial}).spikeHist(move_index-500:move_index+499);
-                    end
+                info = trialData.info;
+                info.trialnum = trialData.trialnum;
+                info.neuronsInCluster = neuronsInCluster;
+                
+                % add meta data to cluster condition trial
+                cluster_struct.(conditions{iCond}).(trials{iTrial}).info = info;
+                
+                currentClusterSpikes = cluster_struct.(conditions{iCond}).(trials{iTrial}).(clusterName);
+                if isempty(cluster_struct.(conditions{iCond}).(trials{iTrial}).(clusterName))
+                    cluster_struct.(conditions{iCond}).(trials{iTrial}).(clusterName) = trialData.spikeHist;
+                else
+                    cluster_struct.(conditions{iCond}).(trials{iTrial}).(clusterName) = ...
+                        cat(2, currentClusterSpikes, trialData.spikeHist);
                 end
-            end % end of loop thru trials 
+            end % end of loop thru trials
         end % end of loop throug conditions
     end % loop through each neuron in cluster
 end  
