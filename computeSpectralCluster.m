@@ -17,6 +17,16 @@ load(fullfile(graphDir, 'pearsonRGraph_allconditions.mat'));
 % cluster_struct = struct();
 [C, L, U] = SpectralClustering(graph, 4, 1);
 
+<<<<<<< HEAD
+tempclusters = C;
+clusters = zeros(length(tempclusters),1);
+for i=1:length(tempclusters)
+    clusterIndex = find(tempclusters(i,:)==1);
+    clusters(i) = clusterIndex;
+end
+
+save('cindices.mat', 'clusters')
+=======
 % initialize struct
 for iCond=1:length(conditions)
     cluster_struct.(conditions{iCond}) = struct();
@@ -38,6 +48,7 @@ for iCond=1:length(conditions)
     end
 end
 
+>>>>>>> c7603d1d823c7e43554b81013339cdce121240fb
 
 for iClust=1:size(C,2) % loop through number of clusters
     clusterName = strcat('cluster', num2str(iClust));
