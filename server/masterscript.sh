@@ -11,8 +11,3 @@ fi
 for i in {1..40}; do
 	echo $i;
 done
-
-echo "Running glm computation."
-matlab -logfile /home/ali/adamli/motorControl-InputOutputModels/server/_log/job$1.txt -nojvm -nodisplay -nosplash -r "index='$index'; \
-	runppm(index);\
-	exit"
