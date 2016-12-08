@@ -226,11 +226,11 @@ end % loop thru condition
 
 X = full(X);
 
-[beta,dev,stats] = glmfit(X,Y(:),'Binomial');
+[beta,dev,stats] = glmfit(X,Y(:),'Poisson');
 
-X= sparse(X);
-Y = sparse(Y(:));
+% X= sparse(X);
+% Y = sparse(Y(:));
 
-save(outname,'X','Y','beta','stats','-v7.3');
+% save(outname,'X','Y','beta','stats','-v7.3');
 save(outname,'params','stats','-v7.3');
 end

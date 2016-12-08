@@ -10,4 +10,6 @@ fi
 
 for i in {1..40}; do
 	echo $i;
+	# run a pbs batch job. Make sure there are no spaces in between the parameters passed
+	qsub -v index=$index run_job.pbs
 done

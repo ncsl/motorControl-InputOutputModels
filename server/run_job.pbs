@@ -6,11 +6,11 @@
 #PBS -m abe
 #PBS -q dque
 #PBS -S /bin/bash
-#PBS -d /home/ali/adamli//motorControl-InputOutputModels/server
-#PBS -e /home/ali/adamli//motorControl-InputOutputModels/server/_log/test.err
-#PBS -o /home/ali/adamli//motorControl-InputOutputModels/server/_log/test.out
-cd /home/ali/adamli/fragility_dataanalysis/server
+#PBS -d /home/ali/motorControl-InputOutputModels/server
+#PBS -e /home/ali/motorControl-InputOutputModels/server/_log/test.err
+#PBS -o /home/ali/motorControl-InputOutputModels/server/_log/test.out
+cd /home/ali/motorControl-InputOutputModels/server
 
 proc=0 
-pbsdsh -n $proc /home/ali/adamli//motorControl-InputOutputModels/server/runAnalysis.sh $index &
+pbsdsh -n $proc /home/ali/motorControl-InputOutputModels/server/runglm.sh $index &
 wait
