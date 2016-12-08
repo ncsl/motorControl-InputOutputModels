@@ -16,6 +16,16 @@ neurons = {neurons.name};
 load(fullfile(graphDir, 'pearsonRGraph_allconditions.mat'));
 cluster_struct = struct();
 [C, L, U] = SpectralClustering(graph, 4, 1);
+
+tempclusters = C;
+clusters = zeros(length(tempclusters),1);
+for i=1:length(tempclusters)
+    clusterIndex = find(tempclusters(i,:)==1);
+    clusters(i) = clusterIndex;
+end
+
+save('cindices.mat', 'clusters')
+
 for iClust=1:size(C,2) % loop through number of clusters
     clusterName = strcat('cluster', num2str(iClust));
     currentCluster = C(:, iClust); % get the cluster indices for current cluster
