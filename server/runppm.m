@@ -12,7 +12,7 @@ function runppm(index)
     
     clusterData = trainData;
     allparams = params.test_params;
-    outname = fullfile('glm_fits', strcat('m1neuron_', num2str(index)));
+    outname = fullfile('glm_fits', strcat('binomial_m1neuron_', num2str(index)));
     paramlist = fieldnames(allparams);
     params = allparams.(paramlist{index});
 

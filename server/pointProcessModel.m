@@ -70,7 +70,6 @@ else
     cluster2_hist = 10;
     cluster3_hist = 10;
     cluster4_hist = 10;
-    
 end
 
 % AR order for each cluster?
@@ -226,7 +225,7 @@ end % loop thru condition
 
 X = full(X);
 
-[beta,dev,stats] = glmfit(X,Y(:),'Poisson');
+[beta,dev,stats] = glmfit(X,Y(:),'Binomial');
 
 % X= sparse(X);
 % Y = sparse(Y(:));
